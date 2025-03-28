@@ -14,3 +14,8 @@ prepare_model:
 model_training:
   root_dir: artifacts/model_training
   trained_model_path: artifacts/model_training/animal_classifier_trained.h5
+
+model_evaluation:
+  root_dir: artifacts/model_evaluation
+  metrics_file_path: artifacts/model_evaluation/metrics.csv
+  confusion_matrix_path: artifacts/model_evaluation/confusion_matrix.png

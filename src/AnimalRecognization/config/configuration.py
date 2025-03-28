@@ -1,6 +1,7 @@
 # src/AnimalRecognization/config/configuration.py
 from src.AnimalRecognization.utils.common import read_yaml, create_directories
-from src.AnimalRecognization.entity.config_entity import (DataIngestionConfig, PrepareModelConfig, ModelTrainingConfig)
+from src.AnimalRecognization.entity.config_entity import (DataIngestionConfig, PrepareModelConfig,
+                                                          ModelTrainingConfig, ModelEvaluationConfig)
 from src.AnimalRecognization.constants import *
 
 
@@ -70,3 +71,24 @@ class ConfigurationManager:
         )
 
         return model_training_config
+
+    def get_model_evaluation_config(self) -> ModelEvaluationConfig:
+        eval_config = self.config.model_evaluation
+        model_training = self.config.model_training
+
+        # Evaluation data path (same as training data)
+        evaluation_data = self.config.data_ingestion.unzip_dir
+
+        create_directories([Path(eval_config.root_dir)])
+
+        model_evaluation_config = ModelEvaluationConfig(
+            root_dir=Path(eval_config.root_dir),
+            trained_model_path=Path(model_training.trained_model_path),
+            evaluation_data=Path(evaluation_data),
+            params_image_size=self.params.base.image_size,
+            params_batch_size=self.params.base.batch_size,
+            metrics_file_path=Path(eval_config.metrics_file_path),
+            confusion_matrix_path=Path(eval_config.confusion_matrix_path)
+        )
+
+        return model_evaluation_config

@@ -32,3 +32,13 @@ class ModelTrainingConfig:
     params_num_classes: int
     params_augmentation: bool
     params_validation_split: float
+
+@dataclass(frozen=True)
+class ModelEvaluationConfig:
+    root_dir: Path
+    trained_model_path: Path
+    evaluation_data: Path
+    params_image_size: list
+    params_batch_size: int
+    metrics_file_path: Path
+    confusion_matrix_path: Path

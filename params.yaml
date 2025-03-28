@@ -11,6 +11,6 @@ model:
 
 # Add to params.yaml
 training:
-  epochs: 10
+  epochs: 1
   augmentation: True
   validation_split: 0.2

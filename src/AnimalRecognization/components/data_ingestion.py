@@ -6,6 +6,14 @@ from src.AnimalRecognization import logger
 from src.AnimalRecognization.entity.config_entity import DataIngestionConfig
 from src.AnimalRecognization.utils.common import get_size
 
+# src/AnimalRecognization/components/data_ingestion.py
+import os
+import zipfile
+import gdown
+from src.AnimalRecognization import logger
+from src.AnimalRecognization.entity.config_entity import DataIngestionConfig
+from src.AnimalRecognization.utils.common import get_size
+
 
 class DataIngestion:
     def __init__(self, config: DataIngestionConfig):
@@ -13,7 +21,7 @@ class DataIngestion:
 
     def download_file(self) -> None:
         '''
-        Fetch data from Kaggle
+        Fetch data from Google Drive
         '''
         try:
             dataset_url = self.config.source_URL
@@ -22,16 +30,12 @@ class DataIngestion:
 
             logger.info(f"Downloading animal dataset from {dataset_url}")
 
-            # Extract dataset name from URL (modify as needed for your Kaggle dataset)
-            dataset_name = dataset_url.split("/")[-1]
+            # Extract file ID from Google Drive URL
+            file_id = dataset_url.split("/")[-2]
+            prefix = 'https://drive.google.com/uc?id='
 
-            # Use Kaggle API to download dataset
-            # Note: Requires Kaggle API credentials to be set up
-            kaggle.api.dataset_download_files(
-                dataset=dataset_name,
-                path=os.path.dirname(zip_download_dir),
-                unzip=False
-            )
+            # Download using gdown
+            gdown.download(prefix + file_id, zip_download_dir)
 
             logger.info(f"Downloaded data from {dataset_url} into file {zip_download_dir}")
             logger.info(f"File size: {get_size(self.config.local_data_file)}")

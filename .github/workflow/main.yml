@@ -1,0 +1,48 @@
+# .github/workflows/main.yml
+name: Animal Recognition CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Run tests
+      run: |
+        pytest tests/ -v
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Build artifacts
+      run: |
+        python -c "from src.AnimalRecognization.pipeline.stage_01_data_ingestion import DataIngestionTrainingPipeline; DataIngestionTrainingPipeline().main()"
+        python -c "from src.AnimalRecognization.pipeline.stage_02_prepare_model import PrepareModelTrainingPipeline; PrepareModelTrainingPipeline().main()"
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: model-artifacts
+        path: artifacts/prepare_model

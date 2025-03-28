@@ -1,0 +1,13 @@
+# docker-compose.yml
+version: '3'
+
+services:
+  animal_recognition:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./artifacts:/app/artifacts
+    environment:
+      - TF_FORCE_GPU_ALLOW_GROWTH=true
+    restart: unless-stopped

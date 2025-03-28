@@ -8,3 +8,9 @@ model:
   learning_rate: 0.001
   num_classes: 90
   dropout_rate: 0.2
+
+# Add to params.yaml
+training:
+  epochs: 10
+  augmentation: True
+  validation_split: 0.2

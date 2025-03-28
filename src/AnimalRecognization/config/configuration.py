@@ -1,6 +1,6 @@
 # src/AnimalRecognization/config/configuration.py
 from src.AnimalRecognization.utils.common import read_yaml, create_directories
-from src.AnimalRecognization.entity.config_entity import (DataIngestionConfig,PrepareModelConfig)
+from src.AnimalRecognization.entity.config_entity import (DataIngestionConfig, PrepareModelConfig, ModelTrainingConfig)
 from src.AnimalRecognization.constants import *
 
 
@@ -44,3 +44,29 @@ class ConfigurationManager:
         )
 
         return prepare_model_config
+
+
+def get_model_training_config(self) -> ModelTrainingConfig:
+    training = self.config.model_training
+    prepare_model = self.config.prepare_model
+
+    # Training data path from data ingestion
+    training_data = self.config.data_ingestion.unzip_dir
+
+    create_directories([Path(training.root_dir)])
+
+    model_training_config = ModelTrainingConfig(
+        root_dir=Path(training.root_dir),
+        trained_model_path=Path(training.trained_model_path),
+        updated_base_model_path=Path(prepare_model.model_path),
+        training_data=Path(training_data),
+        params_epochs=self.params.training.epochs,
+        params_batch_size=self.params.base.batch_size,
+        params_image_size=self.params.base.image_size,
+        params_learning_rate=self.params.model.learning_rate,
+        params_num_classes=self.params.model.num_classes,
+        params_augmentation=self.params.training.augmentation,
+        params_validation_split=self.params.training.validation_split
+    )
+
+    return model_training_config

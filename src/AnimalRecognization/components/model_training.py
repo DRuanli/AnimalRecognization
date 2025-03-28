@@ -1,0 +1,125 @@
+# src/AnimalRecognization/components/model_training.py
+import os
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from src.AnimalRecognization import logger
+from src.AnimalRecognization.entity.config_entity import ModelTrainingConfig
+
+
+class ModelTraining:
+    def __init__(self, config: ModelTrainingConfig):
+        self.config = config
+
+    def get_image_dataset(self):
+        """Create training and validation datasets"""
+        logger.info("Setting up data generators with augmentation")
+
+        # Basic preprocessing
+        datagen_kwargs = {
+            'rescale': 1. / 255,
+            'validation_split': self.config.params_validation_split
+        }
+
+        # Add augmentation if enabled
+        if self.config.params_augmentation:
+            datagen_kwargs.update({
+                'rotation_range': 20,
+                'width_shift_range': 0.2,
+                'height_shift_range': 0.2,
+                'shear_range': 0.2,
+                'zoom_range': 0.2,
+                'horizontal_flip': True,
+                'fill_mode': 'nearest'
+            })
+
+        # Create ImageDataGenerators
+        train_datagen = ImageDataGenerator(**datagen_kwargs)
+
+        # Flow from directory for training data
+        train_generator = train_datagen.flow_from_directory(
+            self.config.training_data,
+            target_size=tuple(self.config.params_image_size),
+            batch_size=self.config.params_batch_size,
+            class_mode='categorical',
+            subset='training'
+        )
+
+        # Flow from directory for validation data
+        val_generator = train_datagen.flow_from_directory(
+            self.config.training_data,
+            target_size=tuple(self.config.params_image_size),
+            batch_size=self.config.params_batch_size,
+            class_mode='categorical',
+            subset='validation'
+        )
+
+        logger.info(f"Found {train_generator.samples} training images in {train_generator.num_classes} classes")
+        logger.info(f"Found {val_generator.samples} validation images")
+
+        return train_generator, val_generator
+
+    def train(self):
+        """Train the model"""
+        # Load the model
+        logger.info(f"Loading model from {self.config.updated_base_model_path}")
+        model = tf.keras.models.load_model(self.config.updated_base_model_path)
+
+        # Get training and validation datasets
+        train_generator, val_generator = self.get_image_dataset()
+
+        # Set up callbacks
+        callbacks = [
+            tf.keras.callbacks.ModelCheckpoint(
+                filepath=os.path.join(self.config.root_dir, "model_ckpt.h5"),
+                save_best_only=True,
+                monitor='val_accuracy'
+            ),
+            tf.keras.callbacks.EarlyStopping(
+                patience=5,
+                monitor='val_loss',
+                restore_best_weights=True
+            ),
+            tf.keras.callbacks.ReduceLROnPlateau(
+                factor=0.1,
+                patience=3,
+                monitor='val_loss',
+                verbose=1,
+                min_lr=1e-6
+            ),
+            tf.keras.callbacks.TensorBoard(
+                log_dir=os.path.join(self.config.root_dir, "logs")
+            )
+        ]
+
+        # Fine-tune the model
+        logger.info("Starting model training")
+
+        # Unfreeze some top layers for fine-tuning
+        for layer in model.layers[-20:]:
+            layer.trainable = True
+
+        # Recompile the model with lower learning rate for fine-tuning
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=self.config.params_learning_rate / 10),
+            loss='categorical_crossentropy',
+            metrics=['accuracy']
+        )
+
+        # Train the model
+        steps_per_epoch = train_generator.samples // self.config.params_batch_size
+        validation_steps = val_generator.samples // self.config.params_batch_size
+
+        history = model.fit(
+            train_generator,
+            steps_per_epoch=steps_per_epoch,
+            epochs=self.config.params_epochs,
+            validation_data=val_generator,
+            validation_steps=validation_steps,
+            callbacks=callbacks
+        )
+
+        # Save the trained model
+        model.save(self.config.trained_model_path)
+        logger.info(f"Model training completed. Model saved at: {self.config.trained_model_path}")
+
+        return history

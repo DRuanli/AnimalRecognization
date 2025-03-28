@@ -10,3 +10,7 @@ data_ingestion:
 prepare_model:
   root_dir: artifacts/prepare_model
   model_path: artifacts/prepare_model/animal_classifier_model.h5
+
+model_training:
+  root_dir: artifacts/model_training
+  trained_model_path: artifacts/model_training/animal_classifier_trained.h5

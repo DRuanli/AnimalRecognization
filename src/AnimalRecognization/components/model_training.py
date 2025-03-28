@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, TensorBoard
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.utils import class_weight_utils
+from sklearn.utils import class_weight
 from src.AnimalRecognization import logger
 from src.AnimalRecognization.entity.config_entity import ModelTrainingConfig
 
@@ -98,7 +98,7 @@ class ModelTraining:
 
         if len(unique_classes) > 1:
             try:
-                weights = class_weight_utils.compute_class_weight(
+                weights = class_weight.compute_class_weight(
                     class_weight='balanced',
                     classes=unique_classes,
                     y=classes

@@ -1,7 +1,8 @@
 # src/AnimalRecognization/config/configuration.py
 from src.AnimalRecognization.utils.common import read_yaml, create_directories
 from src.AnimalRecognization.entity.config_entity import (DataIngestionConfig, PrepareModelConfig,
-                                                          ModelTrainingConfig, ModelEvaluationConfig)
+                                                          ModelTrainingConfig, ModelEvaluationConfig,
+                                                          PredictionConfig)
 from src.AnimalRecognization.constants import *
 
 
@@ -92,3 +93,19 @@ class ConfigurationManager:
         )
 
         return model_evaluation_config
+
+    def get_prediction_config(self) -> PredictionConfig:
+        pred_config = self.config.prediction
+        model_training = self.config.model_training
+
+        create_directories([Path(pred_config.root_dir)])
+
+        prediction_config = PredictionConfig(
+            root_dir=Path(pred_config.root_dir),
+            trained_model_path=Path(model_training.trained_model_path),
+            params_image_size=self.params.base.image_size,
+            class_names_file=Path(pred_config.class_names_file),
+            webapp_dir=Path(pred_config.webapp_dir)
+        )
+
+        return prediction_config

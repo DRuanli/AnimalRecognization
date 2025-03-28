@@ -19,3 +19,8 @@ model_evaluation:
   root_dir: artifacts/model_evaluation
   metrics_file_path: artifacts/model_evaluation/metrics.csv
   confusion_matrix_path: artifacts/model_evaluation/confusion_matrix.png
+
+prediction:
+  root_dir: artifacts/prediction
+  class_names_file: artifacts/prediction/class_names.json
+  webapp_dir: webapp

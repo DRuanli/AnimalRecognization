@@ -42,3 +42,11 @@ class ModelEvaluationConfig:
     params_batch_size: int
     metrics_file_path: Path
     confusion_matrix_path: Path
+
+@dataclass(frozen=True)
+class PredictionConfig:
+    root_dir: Path
+    trained_model_path: Path
+    params_image_size: list
+    class_names_file: Path
+    webapp_dir: Path

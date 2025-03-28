@@ -6,3 +6,7 @@ data_ingestion:
   source_URL: "https://drive.google.com/file/d/1Y-IwKwxptnsr-Yg-dAiPWZ1RtmdHhmZX/view?usp=share_link"  # Replace with actual Kaggle dataset path
   local_data_file: artifacts/data_ingestion/animal-images.zip
   unzip_dir: artifacts/data_ingestion/animal-images
+
+prepare_model:
+  root_dir: artifacts/prepare_model
+  model_path: artifacts/prepare_model/animal_classifier_model.h5

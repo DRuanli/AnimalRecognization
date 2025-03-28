@@ -3,3 +3,8 @@ base:
   random_state: 42
   image_size: [224, 224]
   batch_size: 32
+
+model:
+  learning_rate: 0.001
+  num_classes: 90
+  dropout_rate: 0.2

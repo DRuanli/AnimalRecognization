@@ -1,6 +1,6 @@
 # src/AnimalRecognization/config/configuration.py
 from src.AnimalRecognization.utils.common import read_yaml, create_directories
-from src.AnimalRecognization.entity.config_entity import DataIngestionConfig
+from src.AnimalRecognization.entity.config_entity import (DataIngestionConfig,PrepareModelConfig)
 from src.AnimalRecognization.constants import *
 
 
@@ -27,3 +27,20 @@ class ConfigurationManager:
         )
 
         return data_ingestion_config
+
+    def get_prepare_model_config(self) -> PrepareModelConfig:
+        config = self.config.prepare_model
+
+        create_directories([config.root_dir])
+
+        prepare_model_config = PrepareModelConfig(
+            root_dir=Path(config.root_dir),
+            model_path=Path(config.model_path),
+            params_image_size=self.params.base.image_size,
+            params_batch_size=self.params.base.batch_size,
+            params_learning_rate=self.params.model.learning_rate,
+            params_num_classes=self.params.model.num_classes,
+            params_dropout_rate=self.params.model.dropout_rate
+        )
+
+        return prepare_model_config

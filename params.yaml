@@ -1,0 +1,5 @@
+# params.yaml
+base:
+  random_state: 42
+  image_size: [224, 224]
+  batch_size: 32
